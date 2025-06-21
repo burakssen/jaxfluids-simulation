@@ -32,13 +32,13 @@ export default function App() {
   const initializeModel = async (): Promise<boolean> => {
     try {
       const npy = new Npyjs();
-      const npyBuffer = await (await fetch('/feed_forward_data.npy')).arrayBuffer();
+      const npyBuffer = await (await fetch('/jaxfluids-feed-forward/feed_forward_data.npy')).arrayBuffer();
       const npyData = await npy.parse(npyBuffer);
       const inputArray = new Float64Array(npyData.data);
 
       stateRef.current.var_0 = new ort.Tensor('float64', inputArray, npyData.shape);
       stateRef.current.var_1 = new ort.Tensor('float64', new Float64Array([0.0]), [1]);
-      stateRef.current.session = await ort.InferenceSession.create('/feed_forward.onnx');
+      stateRef.current.session = await ort.InferenceSession.create('/jaxfluids-feed-forward/feed_forward.onnx');
 
       return true;
     } catch (err) {
