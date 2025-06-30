@@ -338,9 +338,8 @@ export default function App() {
               textAnchor="end"
               height={60}
               label={{
-                value: "Index",
+                value: "Spatial Index",
                 position: "insideBottom",
-                offset: -40,
                 fill: "#e0e0e0",
                 fontSize: 14,
               }}
