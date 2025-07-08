@@ -61,8 +61,8 @@ modelRegistry.registerModel(
     dataPath: "/jaxfluids-feed-forward/models/feed_forward_v2/data.npy",
     inputShape: [5, 256, 1, 1],
     outputShape: [5, 256, 1, 1],
-    timeStepRange: [0.0001, 0.005],
-    defaultTimeStep: 0.001,
+    timeStepRange: [0.0001, 0.001],
+    defaultTimeStep: 0.0001,
     parameters: {
       channels: 5,
       resolution: 256,
