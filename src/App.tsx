@@ -317,34 +317,6 @@ export default function App() {
       <Suspense fallback={<ChartLoadingPlaceholder />}>
         <SimulationChart chartData={chartData} />
       </Suspense>
-
-      <div className="mt-4 p-4 bg-gray-800 rounded-lg border border-gray-700">
-        <h4 className="text-md font-semibold mb-2">Model Information</h4>
-        <div className="text-sm text-gray-300">
-          <p>
-            <strong>Model:</strong> {currentModel.name}
-          </p>
-          <p>
-            <strong>Description:</strong> {currentModel.description}
-          </p>
-          <p>
-            <strong>Input Shape:</strong> [{currentModel.inputShape.join(", ")}]
-          </p>
-          <p>
-            <strong>Output Shape:</strong> [
-            {currentModel.outputShape.join(", ")}]
-          </p>
-          <p>
-            <strong>Time Step Range:</strong> {currentModel.timeStepRange[0]} -{" "}
-            {currentModel.timeStepRange[1]}
-          </p>
-          {data.metadata && (
-            <p>
-              <strong>Metadata:</strong> {JSON.stringify(data.metadata)}
-            </p>
-          )}
-        </div>
-      </div>
     </div>
   );
 }
