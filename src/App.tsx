@@ -11,7 +11,7 @@ import {
   type InitializationProgress,
 } from "./types/SimulationTypes";
 
-// Lazy load components
+// Lazy load components.
 const SimulationChart = lazy(() => import("./components/SimulationChart"));
 const ChartLoadingPlaceholder = () => <div>Loading chart...</div>;
 const ModelInitializationProgress = ({
@@ -38,7 +38,7 @@ modelRegistry.registerModel(
     id: "feedforward",
     name: "Feed Forward Neural Network",
     description: "ONNX-based neural network model",
-    modelPath: "/jaxfluids-feed-forward/models/feed_forward_v1/model.onnx",
+    modelPath: "/jaxfluids-feed-forward/models/feed_forward_v1/model_slim.onnx",
     dataPath: "/jaxfluids-feed-forward/models/feed_forward_v1/data.npy",
     inputShape: [5, 256, 1, 1],
     outputShape: [5, 256, 1, 1],
@@ -57,7 +57,7 @@ modelRegistry.registerModel(
     id: "feedforward_v2",
     name: "Feed Forward Neural Network v2",
     description: "Updated ONNX-based neural network model",
-    modelPath: "/jaxfluids-feed-forward/models/feed_forward_v2/model.onnx",
+    modelPath: "/jaxfluids-feed-forward/models/feed_forward_v2/model_slim.onnx",
     dataPath: "/jaxfluids-feed-forward/models/feed_forward_v2/data.npy",
     inputShape: [5, 256, 1, 1],
     outputShape: [5, 256, 1, 1],
