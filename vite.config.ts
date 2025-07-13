@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [
     react(),
     viteCompression({
-      verbose: true,
+      verbose: false,
       disable: false,
       threshold: 1024,
       algorithm: "gzip",
@@ -20,43 +20,61 @@ export default defineConfig({
   build: {
     chunkSizeWarningLimit: 1600,
     sourcemap: false,
+    target: "esnext",
+    minify: "terser",
 
     rollupOptions: {
       output: {
         manualChunks: {
           "onnx-runtime": ["onnxruntime-web"],
-          charts: ["recharts"],
+          "chart-vendor": ["recharts"],
           "data-processing": ["npyjs"],
           "react-vendor": ["react", "react-dom"],
+          "ui-vendor": ["lucide-react"],
         },
+        // Optimize chunk naming
+        chunkFileNames: "assets/[name]-[hash].js",
+        entryFileNames: "assets/[name]-[hash].js",
+        assetFileNames: "assets/[name]-[hash].[ext]",
       },
     },
 
-    // Target modern browsers for better optimization
-    target: "esnext",
-
-    // Advanced minification
-    minify: "terser",
     terserOptions: {
       compress: {
         drop_console: true,
         drop_debugger: true,
-        pure_funcs: ["console.log", "console.info"],
+        pure_funcs: ["console.log", "console.info", "console.warn"],
+        passes: 2,
       },
       mangle: {
         safari10: true,
       },
+      format: {
+        comments: false,
+      },
     },
   },
 
-  // Optimize dependencies
   optimizeDeps: {
-    include: ["onnxruntime-web", "recharts", "npyjs"],
+    include: ["onnxruntime-web", "recharts", "npyjs", "lucide-react"],
     exclude: [],
+    // Force pre-bundling for better performance
+    force: true,
+  },
+
+  esbuild: {
+    drop: ["console", "debugger"],
+    target: "esnext",
   },
 
   // Enable experimental features for better performance
-  esbuild: {
-    drop: ["console", "debugger"],
+  experimental: {
+    renderBuiltUrl(filename, { hostType }) {
+      if (hostType === "js") {
+        return { js: `/${filename}` };
+      } else {
+        return { relative: true };
+      }
+    },
   },
 });

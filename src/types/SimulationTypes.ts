@@ -1,6 +1,6 @@
 export interface IterationData {
   iteration: number;
-  values: Float64Array;
+  values: Float64Array[];
   time: number;
   metadata?: Record<string, any>;
 }
@@ -34,16 +34,31 @@ export interface ModelConfig {
   outputShape: number[];
   timeStepRange: [number, number];
   defaultTimeStep: number;
-  parameters?: Record<string, any>;
+  spatialRange: [number, number];
+  channels: number[];
+  channelLabels?: string[];
 }
 
 export interface ModelAdapter {
-  initialize(config: ModelConfig, onProgress?: (progress: InitializationProgress) => void): Promise<any>;
-  runInference(session: any, data: Float64Array, time: number, timeStep: number): Promise<{
+  initialize(
+    config: ModelConfig,
+    onProgress?: (progress: InitializationProgress) => void
+  ): Promise<any>;
+  runInference(
+    session: any,
+    data: Float64Array,
+    time: number,
+    timeStep: number,
+    dims: number[]
+  ): Promise<{
     newData: Float64Array;
     newTime: number;
     metadata?: Record<string, any>;
   }>;
-  extractVisualizationData(data: Float64Array): Float64Array;
+  extractVisualizationData(
+    data: Float64Array,
+    channel: number,
+    datasize: number
+  ): Float64Array;
   cleanup?(session: any): void;
 }

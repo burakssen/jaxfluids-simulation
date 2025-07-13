@@ -1,4 +1,4 @@
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useEffect } from "react";
 import {
   type SimulationState,
   type IterationData,
@@ -23,6 +23,12 @@ export const useSimulationModel = (
     isPaused: false,
     modelMetadata: {},
   });
+
+  // Update time step when it changes
+  useEffect(() => {
+    // Time step changes are handled by the controller
+    // This effect ensures the model state is aware of time step changes
+  }, [timeStep]);
 
   const initializeModel = useCallback(
     async (
@@ -68,7 +74,8 @@ export const useSimulationModel = (
         state.session,
         state.currentData,
         state.currentTime,
-        timeStep
+        timeStep,
+        config.inputShape
       );
 
       // Update state
@@ -82,15 +89,19 @@ export const useSimulationModel = (
       state.iteration++;
 
       // Extract visualization data
-      const visualizationData = adapter.extractVisualizationData(
-        result.newData
+      const visualizationData = config.channels.map((ch) =>
+        adapter.extractVisualizationData(
+          result.newData,
+          ch,
+          config.outputShape[1]
+        )
       );
 
       return {
         success: true,
         data: {
           iteration: state.iteration,
-          values: new Float64Array(visualizationData),
+          values: visualizationData,
           time: result.newTime,
           metadata: result.metadata,
         },
@@ -101,12 +112,24 @@ export const useSimulationModel = (
         error: err instanceof Error ? err.message : "Unknown inference error",
       };
     }
-  }, [adapter, timeStep]);
+  }, [adapter, timeStep, config]);
 
   const cleanup = useCallback(() => {
     if (stateRef.current.session && adapter.cleanup) {
       adapter.cleanup(stateRef.current.session);
     }
+    // Reset state after cleanup
+    stateRef.current = {
+      session: null,
+      currentData: null,
+      currentTime: 0,
+      iteration: 0,
+      shouldStop: false,
+      shouldPause: false,
+      isInitialized: false,
+      isPaused: false,
+      modelMetadata: {},
+    };
   }, [adapter]);
 
   return {

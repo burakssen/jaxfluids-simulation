@@ -30,6 +30,8 @@ export class FeedForwardAdapter implements ModelAdapter {
         onProgress?.({ stage: "Parsing model data...", progress: 50 });
         const npyData = npy.parse(npyBuffer);
         inputArray = new Float64Array(npyData.data);
+        
+
       } else {
         // Generate default data based on input shape
         const totalSize = config.inputShape.reduce((a, b) => a * b, 1);
@@ -44,7 +46,6 @@ export class FeedForwardAdapter implements ModelAdapter {
       return {
         session,
         initialData: inputArray,
-        metadata: config.parameters || {},
       };
     } catch (err) {
       throw new Error(
@@ -57,7 +58,8 @@ export class FeedForwardAdapter implements ModelAdapter {
     session: any,
     data: Float64Array,
     time: number,
-    timeStep: number
+    timeStep: number,
+    dims: number[]
   ): Promise<{
     newData: Float64Array;
     newTime: number;
@@ -65,7 +67,7 @@ export class FeedForwardAdapter implements ModelAdapter {
   }> {
     const ort = await loadONNXRuntime();
 
-    const inputTensor = new ort.Tensor("float64", data, [5, 256, 1, 1]);
+    const inputTensor = new ort.Tensor("float64", data, dims);
     const timeTensor = new ort.Tensor("float64", new Float64Array([time]), [1]);
     const dtTensor = new ort.Tensor("float64", new Float64Array([timeStep]), [
       1,
@@ -80,6 +82,8 @@ export class FeedForwardAdapter implements ModelAdapter {
     const newData = outputs["var_3"].data as Float64Array;
     const newTime = (outputs["var_4"].data as Float64Array)[0];
 
+
+
     return {
       newData,
       newTime,
@@ -93,9 +97,23 @@ export class FeedForwardAdapter implements ModelAdapter {
     };
   }
 
-  extractVisualizationData(data: Float64Array): Float64Array {
-    // Extract first channel data for visualization
-    return data.subarray(0, 256);
+  extractVisualizationData(
+    data: Float64Array,
+    channel: number,
+    dataSize: number
+  ): Float64Array {
+    if (channel < 0 || channel >= 5) {
+      throw new Error("Channel index out of bounds");
+    }
+
+    const channelData = new Float64Array(dataSize);
+    for (let i = 0; i < dataSize; i++) {
+      channelData[i] = data[channel * dataSize + i];
+    }
+    
+
+    
+    return channelData;
   }
 
   cleanup(session: any): void {

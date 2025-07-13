@@ -1,322 +1,196 @@
-import React, { useState, useEffect, useCallback, lazy, Suspense } from "react";
+import React, { useMemo, useCallback, useEffect, useRef } from "react";
 import { ModelRegistry } from "./models/ModelRegistry";
 import { FeedForwardAdapter } from "./models/adapters/FeedForwardAdapter";
-import { useSimulationModel } from "./hooks/useSimulationModel";
-import { useSimulationLoop } from "./hooks/useSimulationLoops";
+import { useSimulationState } from "./hooks/useSimulationState";
+import { useSimulationController } from "./hooks/useSimulationController";
 import { useChartData } from "./hooks/useChartData";
 import { ModelSelector } from "./components/ModelSelector";
-import {
-  type IterationData,
-  type ExecutionState,
-  type InitializationProgress,
-} from "./types/SimulationTypes";
+import { SimulationControls } from "./components/SimulationControls";
+import { SimulationStatus } from "./components/SimulationStatus";
+import { SimulationResults } from "./components/SimulationResults";
+import { MODEL_CONFIGS, DEFAULT_MODEL_ID } from "./config/models";
 
-// Lazy load components.
-const SimulationChart = lazy(() => import("./components/SimulationChart"));
-const ChartLoadingPlaceholder = () => <div>Loading chart...</div>;
-const ModelInitializationProgress = ({
-  stage,
-  progress,
-}: InitializationProgress) => (
-  <div className="mb-4 p-3 bg-blue-900 border border-blue-700 rounded">
-    <div>{stage}</div>
-    <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
-      <div
-        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-        style={{ width: `${progress}%` }}
-      />
-    </div>
-  </div>
-);
-
-// Initialize model registry
+// Initialize model registry once
 const modelRegistry = new ModelRegistry();
 
 // Register available models
-modelRegistry.registerModel(
-  {
-    id: "feedforward",
-    name: "Feed Forward Neural Network",
-    description: "ONNX-based neural network model",
-    modelPath: "/jaxfluids-feed-forward/models/feed_forward_v1/model_slim.onnx",
-    dataPath: "/jaxfluids-feed-forward/models/feed_forward_v1/data.npy",
-    inputShape: [5, 256, 1, 1],
-    outputShape: [5, 256, 1, 1],
-    timeStepRange: [0.0001, 0.005],
-    defaultTimeStep: 0.001,
-    parameters: {
-      channels: 5,
-      resolution: 256,
-    },
-  },
-  new FeedForwardAdapter()
-);
-
-modelRegistry.registerModel(
-  {
-    id: "feedforward_v2",
-    name: "Feed Forward Neural Network v2",
-    description: "Updated ONNX-based neural network model",
-    modelPath: "/jaxfluids-feed-forward/models/feed_forward_v2/model_slim.onnx",
-    dataPath: "/jaxfluids-feed-forward/models/feed_forward_v2/data.npy",
-    inputShape: [5, 256, 1, 1],
-    outputShape: [5, 256, 1, 1],
-    timeStepRange: [0.0001, 0.001],
-    defaultTimeStep: 0.0001,
-    parameters: {
-      channels: 5,
-      resolution: 256,
-    },
-  },
-  new FeedForwardAdapter()
-);
+MODEL_CONFIGS.forEach((config) => {
+  modelRegistry.registerModel(config, new FeedForwardAdapter());
+});
 
 export default function App() {
-  const [selectedModelId, setSelectedModelId] = useState("feedforward");
-  const [timeStep, setTimeStep] = useState(0.001);
-  const [executionState, setExecutionState] =
-    useState<ExecutionState>("stopped");
-  const [currentIteration, setCurrentIteration] = useState(0);
-  const [error, setError] = useState<string>("");
-  const [initProgress, setInitProgress] =
-    useState<InitializationProgress | null>(null);
-  const [data, setData] = useState<IterationData>({
-    iteration: 0,
-    values: new Float64Array(256),
-    time: 0,
+  const [state, actions] = useSimulationState(DEFAULT_MODEL_ID, 0.001);
+  const userChangedTimeStep = useRef(false);
+  const previousModelId = useRef(state.selectedModelId);
+  const isInitialRender = useRef(true);
+
+  // Memoize current model and adapter
+  const currentModel = useMemo(
+    () => modelRegistry.getModel(state.selectedModelId),
+    [state.selectedModelId]
+  );
+  const currentAdapter = useMemo(
+    () => modelRegistry.getAdapter(state.selectedModelId),
+    [state.selectedModelId]
+  );
+
+  // Initialize simulation controller
+  const controller = useSimulationController({
+    currentModel: currentModel!,
+    currentAdapter: currentAdapter!,
+    timeStep: state.timeStep,
+    onDataUpdate: actions.setData,
+    onError: actions.setError,
+    onStateChange: actions.setExecutionState,
+    onInitProgress: actions.setInitProgress,
   });
 
-  // Get current model and adapter
-  const currentModel = modelRegistry.getModel(selectedModelId);
-  const currentAdapter = modelRegistry.getAdapter(selectedModelId);
+  // Memoize chart data
+  const chartData = useChartData(
+    state.data.values,
+    currentModel?.spatialRange || [0, 2]
+  );
 
-  // Initialize hooks with current model
-  const { stateRef, initializeModel, runSingleIteration, cleanup } =
-    useSimulationModel(currentModel!, currentAdapter!, timeStep);
+  // Memoize channel labels
+  const channelLabels = useMemo(() => {
+    if (!currentModel) return [];
 
-  const { startLoop, stopLoop } = useSimulationLoop(runSingleIteration);
-  const chartData = useChartData(data.values);
-
-  // Update time step when model changes
-  useEffect(() => {
-    if (currentModel) {
-      setTimeStep(currentModel.defaultTimeStep);
-    }
+    return currentModel.channels.map((ch) => {
+      const label = currentModel.channelLabels?.[ch];
+      return label ? label : `Channel ${ch}`;
+    });
   }, [currentModel]);
 
-  // Event handlers
+  // Handle model change - always reset time step when model changes
+  useEffect(() => {
+    // Skip on initial render
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      previousModelId.current = state.selectedModelId;
+      return;
+    }
+
+    // Only proceed if model actually changed
+    if (previousModelId.current !== state.selectedModelId) {
+      console.log(
+        `Model changed from ${previousModelId.current} to ${state.selectedModelId}`
+      );
+
+      // Always reset time step to new model's default when model changes
+      if (currentModel) {
+        const newTimeStep = currentModel.defaultTimeStep;
+        console.log(`Setting time step to model default: ${newTimeStep}`);
+        actions.setTimeStep(newTimeStep);
+      }
+
+      // Reset the user changed flag for new model
+      userChangedTimeStep.current = false;
+      previousModelId.current = state.selectedModelId;
+    }
+  }, [state.selectedModelId, currentModel, actions]);
+
+  // Handle model change
   const handleModelChange = useCallback(
     (modelId: string) => {
-      if (executionState !== "stopped") {
-        handleStop();
-      }
-      setSelectedModelId(modelId);
-      setError("");
-    },
-    [executionState]
-  );
+      console.log(`handleModelChange called with: ${modelId}`);
 
-  const handleDataUpdate = useCallback((newData: IterationData) => {
-    setCurrentIteration(newData.iteration);
-    setData(newData);
-  }, []);
-
-  const handleError = useCallback((errorMsg: string) => {
-    setError(`Inference failed: ${errorMsg}`);
-  }, []);
-
-  const handleInitProgress = useCallback((progress: InitializationProgress) => {
-    setInitProgress(progress);
-  }, []);
-
-  const handleRun = useCallback(async () => {
-    if (!currentModel || !currentAdapter) return;
-
-    stopLoop();
-
-    if (executionState === "stopped") {
-      // Reset state
-      setData({
-        iteration: 0,
-        values: new Float64Array(
-          currentModel.outputShape[currentModel.outputShape.length - 1] || 256
-        ),
-        time: 0,
-      });
-      setCurrentIteration(0);
-      setError("");
-      setInitProgress({ stage: "Starting initialization...", progress: 0 });
-
-      try {
-        const initialized = await initializeModel(handleInitProgress);
-        if (!initialized) return;
-
-        setTimeout(() => setInitProgress(null), 1500);
-      } catch (err) {
-        setError(
-          `Initialization failed: ${
-            err instanceof Error ? err.message : "Unknown error"
-          }`
-        );
-        setInitProgress(null);
+      // Prevent unnecessary changes
+      if (modelId === state.selectedModelId) {
+        console.log(`Model ${modelId} already selected`);
         return;
       }
-    }
 
-    stateRef.current.shouldStop = false;
-    stateRef.current.shouldPause = false;
-    stateRef.current.isPaused = false;
-    setExecutionState("running");
-    startLoop(stateRef, handleDataUpdate, handleError, setExecutionState);
-  }, [
-    currentModel,
-    currentAdapter,
-    executionState,
-    initializeModel,
-    startLoop,
-    stopLoop,
-    stateRef,
-    handleDataUpdate,
-    handleError,
-    handleInitProgress,
-  ]);
+      // Stop simulation if running
+      if (state.executionState !== "stopped") {
+        controller.handleStop();
+      }
 
-  const handlePause = useCallback(() => {
-    if (executionState === "running") {
-      stateRef.current.shouldPause = true;
-    }
-  }, [executionState, stateRef]);
+      // Reset state for new model
+      actions.resetData();
 
-  const handleStop = useCallback(() => {
-    stateRef.current.shouldStop = true;
-    stateRef.current.shouldPause = false;
-    stateRef.current.isPaused = false;
-
-    stopLoop();
-    cleanup();
-    setExecutionState("stopped");
-    setCurrentIteration(0);
-    setError("");
-    setInitProgress(null);
-  }, [stopLoop, cleanup, stateRef]);
-
-  const handleResume = useCallback(() => {
-    if (executionState === "paused") {
-      stateRef.current.shouldPause = false;
-      stateRef.current.isPaused = false;
-      setExecutionState("running");
-      startLoop(stateRef, handleDataUpdate, handleError, setExecutionState);
-    }
-  }, [executionState, startLoop, stateRef, handleDataUpdate, handleError]);
-
-  const handleTimeStepChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setTimeStep(parseFloat(e.target.value));
+      // Set new model - this will trigger the useEffect above
+      actions.setSelectedModelId(modelId);
     },
-    []
+    [state.selectedModelId, state.executionState, controller, actions]
   );
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      stopLoop();
-      cleanup();
-    };
-  }, [stopLoop, cleanup]);
+  // Handle time step change
+  const handleTimeStepChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newTimeStep = parseFloat(e.target.value);
+      if (!isNaN(newTimeStep) && newTimeStep > 0) {
+        console.log(`User manually changed time step to: ${newTimeStep}`);
+        actions.setTimeStep(newTimeStep);
+        userChangedTimeStep.current = true;
+      }
+    },
+    [actions]
+  );
+
+  // Handle pause request
+  const handlePause = useCallback(() => {
+    actions.setPauseRequested(true);
+    controller.handlePause();
+  }, [actions, controller]);
+
+  // Handle resume
+  const handleResume = useCallback(() => {
+    controller.handleResume();
+  }, [controller]);
+
+  // Handle stop
+  const handleStop = useCallback(() => {
+    controller.handleStop();
+    actions.resetToStopped();
+  }, [controller, actions]);
 
   if (!currentModel || !currentAdapter) {
     return <div>Error: Model not found</div>;
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-8 font-sans">
-      <h2 className="text-2xl font-bold mb-6">Modular Simulation Framework</h2>
+    <div className="min-h-screen bg-gray-900 text-white p-4 lg:p-8 font-sans">
+      <div className="max-w-7xl mx-auto">
+        <h2 className="text-2xl font-bold mb-6">
+          Modular Simulation Framework
+        </h2>
 
-      <div className="mb-6 p-4 bg-gray-800 rounded-lg border border-gray-700">
-        <ModelSelector
-          models={modelRegistry.getAllModels()}
-          selectedModel={selectedModelId}
-          onModelChange={handleModelChange}
-          disabled={executionState !== "stopped"}
-        />
+        <div className="mb-6 p-4 bg-gray-800 rounded-lg border border-gray-700 space-y-4">
+          <ModelSelector
+            models={modelRegistry.getAllModels()}
+            selectedModel={state.selectedModelId}
+            onModelChange={handleModelChange}
+            disabled={state.executionState === "running"}
+          />
 
-        <div className="mb-4 text-sm">
-          <strong>Status:</strong> {executionState} |
-          <strong> Iteration:</strong> {currentIteration} |
-          <strong> Data Points:</strong> {data.values.length} |
-          <strong> Time:</strong> {data.time.toFixed(6)}
+          <SimulationStatus
+            executionState={state.executionState}
+            currentIteration={state.currentIteration}
+            dataLength={state.data.values.length}
+            time={state.data.time}
+            error={state.error}
+            initProgress={state.initProgress}
+          />
+
+          <SimulationControls
+            executionState={state.executionState}
+            pauseRequested={state.pauseRequested}
+            timeStep={state.timeStep}
+            timeStepRange={currentModel.timeStepRange}
+            onRun={controller.handleRun}
+            onPause={handlePause}
+            onResume={handleResume}
+            onStop={handleStop}
+            onTimeStepChange={handleTimeStepChange}
+          />
         </div>
 
-        {error && (
-          <div className="mb-4 p-3 bg-red-900 border border-red-700 rounded text-red-200">
-            <strong>Error:</strong> {error}
-          </div>
-        )}
-
-        <div className="mb-4 space-x-2">
-          {executionState === "stopped" && (
-            <button
-              onClick={handleRun}
-              className="bg-green-600 text-white py-2 px-4 rounded hover:opacity-90 transition-colors font-medium"
-            >
-              Run
-            </button>
-          )}
-          {executionState === "running" && (
-            <button
-              onClick={handlePause}
-              className="bg-yellow-500 text-white py-2 px-4 rounded hover:opacity-90 transition-colors font-medium"
-            >
-              Pause
-            </button>
-          )}
-          {executionState === "paused" && (
-            <button
-              onClick={handleResume}
-              className="bg-blue-600 text-white py-2 px-4 rounded hover:opacity-90 transition-colors font-medium"
-            >
-              Resume
-            </button>
-          )}
-          {(executionState === "running" || executionState === "paused") && (
-            <button
-              onClick={handleStop}
-              className="bg-red-600 text-white py-2 px-4 rounded hover:opacity-90 transition-colors font-medium"
-            >
-              Stop
-            </button>
-          )}
-        </div>
-
-        <label className="block mb-2 text-sm">
-          <strong>Time Step (dt):</strong> {timeStep.toFixed(6)}
-        </label>
-        <input
-          type="range"
-          min={currentModel.timeStepRange[0]}
-          max={currentModel.timeStepRange[1]}
-          step={currentModel.timeStepRange[0]}
-          value={timeStep}
-          onChange={handleTimeStepChange}
-          disabled={executionState === "running"}
-          className={`w-full transition-opacity ${
-            executionState === "running"
-              ? "opacity-50 cursor-not-allowed"
-              : "opacity-100"
-          }`}
+        <SimulationResults
+          chartData={chartData}
+          channelLabels={channelLabels}
+          hasData={state.data.values.length > 0}
         />
       </div>
-
-      {initProgress && (
-        <ModelInitializationProgress
-          stage={initProgress.stage}
-          progress={initProgress.progress}
-        />
-      )}
-
-      <Suspense fallback={<ChartLoadingPlaceholder />}>
-        <SimulationChart chartData={chartData} />
-      </Suspense>
     </div>
   );
 }
