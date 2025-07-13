@@ -10,6 +10,7 @@ const loadNpyjs = () => import("npyjs");
 export class FeedForwardAdapter implements ModelAdapter {
   async initialize(
     config: ModelConfig,
+    dataPath?: string,
     onProgress?: (progress: InitializationProgress) => void
   ): Promise<any> {
     try {
@@ -24,14 +25,12 @@ export class FeedForwardAdapter implements ModelAdapter {
 
       let inputArray: Float64Array;
 
-      if (config.dataPath) {
+      if (dataPath) {
         const npy = new Npyjs();
-        const npyBuffer = await (await fetch(config.dataPath)).arrayBuffer();
+        const npyBuffer = await (await fetch(dataPath)).arrayBuffer();
         onProgress?.({ stage: "Parsing model data...", progress: 50 });
         const npyData = npy.parse(npyBuffer);
         inputArray = new Float64Array(npyData.data);
-        
-
       } else {
         // Generate default data based on input shape
         const totalSize = config.inputShape.reduce((a, b) => a * b, 1);
@@ -82,8 +81,6 @@ export class FeedForwardAdapter implements ModelAdapter {
     const newData = outputs["var_3"].data as Float64Array;
     const newTime = (outputs["var_4"].data as Float64Array)[0];
 
-
-
     return {
       newData,
       newTime,
@@ -110,9 +107,7 @@ export class FeedForwardAdapter implements ModelAdapter {
     for (let i = 0; i < dataSize; i++) {
       channelData[i] = data[channel * dataSize + i];
     }
-    
 
-    
     return channelData;
   }
 

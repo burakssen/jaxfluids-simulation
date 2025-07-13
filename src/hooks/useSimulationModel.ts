@@ -9,6 +9,7 @@ import {
 
 export const useSimulationModel = (
   config: ModelConfig,
+  dataPath: string | undefined,
   adapter: ModelAdapter,
   timeStep: number
 ) => {
@@ -35,7 +36,7 @@ export const useSimulationModel = (
       onProgress?: (progress: InitializationProgress) => void
     ): Promise<boolean> => {
       try {
-        const result = await adapter.initialize(config, onProgress);
+        const result = await adapter.initialize(config, dataPath, onProgress);
 
         stateRef.current.session = result.session;
         stateRef.current.currentData = result.initialData;
@@ -55,7 +56,7 @@ export const useSimulationModel = (
         );
       }
     },
-    [config, adapter]
+    [config, adapter, dataPath]
   );
 
   const runSingleIteration = useCallback(async (): Promise<{

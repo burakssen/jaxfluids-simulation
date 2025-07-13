@@ -5,9 +5,13 @@ export const MODEL_CONFIGS: ModelConfig[] = [
     id: "linear_advection_v1",
     name: "Liner Advection Model v1",
     description: "Basic model",
-    modelPath:
-      "/jaxfluids-feed-forward/models/linear_advection_v1/model_slim.onnx",
-    dataPath: "/jaxfluids-feed-forward/models/linear_advection_v1/data.npy",
+    modelPath: "/models/linear_advection_v1/model_slim.onnx",
+    datas: [
+      {
+        path: "/models/linear_advection_v1/data.npy",
+        name: "Linear Advection Data",
+      },
+    ],
     inputShape: [5, 256, 1, 1],
     outputShape: [5, 256, 1, 1],
     timeStepRange: [0.0001, 0.005],
@@ -20,9 +24,13 @@ export const MODEL_CONFIGS: ModelConfig[] = [
     id: "linear_advection_v2",
     name: "Liner Advection Model v2",
     description: "Basic Linear Advection Model",
-    modelPath:
-      "/jaxfluids-feed-forward/models/linear_advection_v2/model_slim.onnx",
-    dataPath: "/jaxfluids-feed-forward/models/linear_advection_v2/data.npy",
+    modelPath: "/models/linear_advection_v2/model_slim.onnx",
+    datas: [
+      {
+        path: "/models/linear_advection_v2/data.npy",
+        name: "Linear Advection Data",
+      },
+    ],
     inputShape: [5, 256, 1, 1],
     outputShape: [5, 256, 1, 1],
     timeStepRange: [0.0001, 0.001],
@@ -35,8 +43,21 @@ export const MODEL_CONFIGS: ModelConfig[] = [
     id: "sod_shock_tube",
     name: "Sod Shock Tube",
     description: "Sod Shock Tube Model",
-    modelPath: "/jaxfluids-feed-forward/models/sod_shock_tube/model_slim.onnx",
-    dataPath: "/jaxfluids-feed-forward/models/sod_shock_tube/data.npy",
+    modelPath: "/models/sod_shock_tube/model_slim.onnx",
+    datas: [
+      {
+        path: "/models/sod_shock_tube/data/data_v1.npy",
+        name: "Sod Shock Tube Data v1",
+      },
+      {
+        path: "/models/sod_shock_tube/data/data_v2.npy",
+        name: "Sod Shock Tube Data v2",
+      },
+      {
+        path: "/models/sod_shock_tube/data/data_v3.npy",
+        name: "Sod Shock Tube Data v3",
+      },
+    ],
     inputShape: [5, 200, 1, 1],
     outputShape: [5, 200, 1, 1],
     timeStepRange: [0.0001, 0.001],

@@ -2,12 +2,9 @@
 import React from "react";
 
 // Loading spinner component
-export const LoadingSpinner: React.FC<{ message?: string }> = ({
-  message = "Loading...",
-}) => (
-  <div className="flex items-center justify-center p-8">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
-    <span className="ml-2 text-gray-300">{message}</span>
+export const LoadingSpinner: React.FC = () => (
+  <div className="flex items-center justify-center">
+    <span className="inline-block h-5 w-5 border-2 border-t-transparent border-white rounded-full animate-spin"></span>
   </div>
 );
 
@@ -15,8 +12,9 @@ export const LoadingSpinner: React.FC<{ message?: string }> = ({
 export const ChartLoadingPlaceholder: React.FC = () => (
   <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
     <h3 className="text-lg font-semibold mb-4">Simulation Results</h3>
-    <div className="w-full h-[500px] bg-gray-700 rounded flex items-center justify-center">
-      <LoadingSpinner message="Loading chart components..." />
+    <div className="w-full h-[500px] bg-gray-700 rounded flex flex-col items-center justify-center">
+      <LoadingSpinner />
+      <span className="mt-4 text-gray-300">Loading chart components...</span>
     </div>
   </div>
 );

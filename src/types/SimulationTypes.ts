@@ -24,12 +24,17 @@ export interface InitializationProgress {
   progress: number;
 }
 
+interface Data {
+  path: string;
+  name: string;
+}
+
 export interface ModelConfig {
   id: string;
   name: string;
   description: string;
   modelPath: string;
-  dataPath?: string;
+  datas?: Data[];
   inputShape: number[];
   outputShape: number[];
   timeStepRange: [number, number];
@@ -42,6 +47,7 @@ export interface ModelConfig {
 export interface ModelAdapter {
   initialize(
     config: ModelConfig,
+    dataPath?: string,
     onProgress?: (progress: InitializationProgress) => void
   ): Promise<any>;
   runInference(

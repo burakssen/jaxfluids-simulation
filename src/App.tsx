@@ -6,7 +6,6 @@ import { useSimulationController } from "./hooks/useSimulationController";
 import { useChartData } from "./hooks/useChartData";
 import { ModelSelector } from "./components/ModelSelector";
 import { SimulationControls } from "./components/SimulationControls";
-import { SimulationStatus } from "./components/SimulationStatus";
 import { SimulationResults } from "./components/SimulationResults";
 import { MODEL_CONFIGS, DEFAULT_MODEL_ID } from "./config/models";
 
@@ -24,6 +23,19 @@ export default function App() {
   const previousModelId = useRef(state.selectedModelId);
   const isInitialRender = useRef(true);
 
+  // Set selectedDataPath to default model's first data file on initial mount if not set
+  React.useEffect(() => {
+    if (!state.selectedDataPath) {
+      const defaultModel = modelRegistry.getModel(DEFAULT_MODEL_ID);
+      const firstData = defaultModel?.datas?.[0]?.path;
+      if (firstData) {
+        actions.setSelectedDataPath(firstData);
+      }
+    }
+    // Only run on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Memoize current model and adapter
   const currentModel = useMemo(
     () => modelRegistry.getModel(state.selectedModelId),
@@ -37,6 +49,7 @@ export default function App() {
   // Initialize simulation controller
   const controller = useSimulationController({
     currentModel: currentModel!,
+    dataPath: state.selectedDataPath,
     currentAdapter: currentAdapter!,
     timeStep: state.timeStep,
     onDataUpdate: actions.setData,
@@ -110,8 +123,35 @@ export default function App() {
 
       // Set new model - this will trigger the useEffect above
       actions.setSelectedModelId(modelId);
+
+      // Automatically select the first data file for the new model
+      const newModel = modelRegistry.getModel(modelId);
+      const firstData = newModel?.datas?.[0]?.path || "";
+      actions.setSelectedDataPath(firstData);
     },
     [state.selectedModelId, state.executionState, controller, actions]
+  );
+
+  const handleDataChange = useCallback(
+    (dataPath: string) => {
+      console.log(`handleDataChange called with: ${dataPath}`);
+      // Prevent unnecessary changes
+      if (dataPath === state.selectedDataPath) {
+        console.log(`Data ${dataPath} already selected`);
+        return;
+      }
+
+      // Stop simulation if running
+      if (state.executionState !== "stopped") {
+        controller.handleStop();
+      }
+
+      // Reset state for new data
+      actions.resetData();
+      // Set new data path
+      actions.setSelectedDataPath(dataPath);
+    },
+    [state.selectedDataPath, state.executionState, controller, actions]
   );
 
   // Handle time step change
@@ -159,18 +199,18 @@ export default function App() {
           <ModelSelector
             models={modelRegistry.getAllModels()}
             selectedModel={state.selectedModelId}
+            selectedData={state.selectedDataPath || ""}
             onModelChange={handleModelChange}
+            onDataChange={handleDataChange}
             disabled={state.executionState === "running"}
           />
 
-          <SimulationStatus
-            executionState={state.executionState}
-            currentIteration={state.currentIteration}
-            dataLength={state.data.values.length}
-            time={state.data.time}
-            error={state.error}
-            initProgress={state.initProgress}
-          />
+          {/* Only show error above controls */}
+          {state.error && (
+            <div className="p-3 bg-red-900 border border-red-700 rounded text-red-200 mb-4">
+              <strong>Error:</strong> {state.error}
+            </div>
+          )}
 
           <SimulationControls
             executionState={state.executionState}
@@ -182,6 +222,10 @@ export default function App() {
             onResume={handleResume}
             onStop={handleStop}
             onTimeStepChange={handleTimeStepChange}
+            currentIteration={state.currentIteration}
+            dataLength={state.data.values.length}
+            time={state.data.time}
+            initProgress={state.initProgress}
           />
         </div>
 

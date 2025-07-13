@@ -1,10 +1,15 @@
-import { useCallback, useEffect, useRef } from 'react';
-import { type ModelConfig, type ModelAdapter, type ExecutionState } from '../types/SimulationTypes';
-import { useSimulationModel } from './useSimulationModel';
-import { useSimulationLoop } from './useSimulationLoops';
+import { useCallback, useEffect, useRef } from "react";
+import {
+  type ModelConfig,
+  type ModelAdapter,
+  type ExecutionState,
+} from "../types/SimulationTypes";
+import { useSimulationModel } from "./useSimulationModel";
+import { useSimulationLoop } from "./useSimulationLoops";
 
 interface SimulationControllerProps {
   currentModel: ModelConfig;
+  dataPath?: string;
   currentAdapter: ModelAdapter;
   timeStep: number;
   onDataUpdate: (data: any) => void;
@@ -15,6 +20,7 @@ interface SimulationControllerProps {
 
 export const useSimulationController = ({
   currentModel,
+  dataPath,
   currentAdapter,
   timeStep,
   onDataUpdate,
@@ -23,21 +29,24 @@ export const useSimulationController = ({
   onInitProgress,
 }: SimulationControllerProps) => {
   const previousTimeStepRef = useRef<number>(timeStep);
-  
+
   // Use the stateRef from useSimulationModel
-  const { stateRef, initializeModel, runSingleIteration, cleanup } = useSimulationModel(
-    currentModel,
-    currentAdapter,
-    timeStep
-  );
+  const { stateRef, initializeModel, runSingleIteration, cleanup } =
+    useSimulationModel(currentModel, dataPath, currentAdapter, timeStep);
 
   const { startLoop, stopLoop } = useSimulationLoop(runSingleIteration);
 
   // Update time step in the model when it changes
   useEffect(() => {
-    if (previousTimeStepRef.current !== timeStep && stateRef.current.isInitialized) {
+    if (
+      previousTimeStepRef.current !== timeStep &&
+      stateRef.current.isInitialized
+    ) {
       // If simulation is running, we need to restart with new time step
-      if (stateRef.current.shouldStop === false && stateRef.current.isPaused === false) {
+      if (
+        stateRef.current.shouldStop === false &&
+        stateRef.current.isPaused === false
+      ) {
         // Pause first, then resume with new time step
         stateRef.current.shouldPause = true;
       }
@@ -46,6 +55,9 @@ export const useSimulationController = ({
   }, [timeStep, stateRef]);
 
   const handleRun = useCallback(async () => {
+    if (!dataPath) {
+      dataPath = currentModel.datas?.[0]?.path || "";
+    }
     if (!currentModel || !currentAdapter) return;
 
     stopLoop();
@@ -56,8 +68,8 @@ export const useSimulationController = ({
       values: [],
       time: 0,
     });
-    onError('');
-    onInitProgress({ stage: 'Starting initialization...', progress: 0 });
+    onError("");
+    onInitProgress({ stage: "Starting initialization...", progress: 0 });
 
     try {
       const initialized = await initializeModel(onInitProgress);
@@ -65,7 +77,11 @@ export const useSimulationController = ({
 
       setTimeout(() => onInitProgress(null), 1500);
     } catch (err) {
-      onError(`Initialization failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      onError(
+        `Initialization failed: ${
+          err instanceof Error ? err.message : "Unknown error"
+        }`
+      );
       onInitProgress(null);
       return;
     }
@@ -77,9 +93,20 @@ export const useSimulationController = ({
       stateRef.current.isPaused = false;
     }
 
-    onStateChange('running');
+    onStateChange("running");
     startLoop(stateRef, onDataUpdate, onError, onStateChange);
-  }, [currentModel, currentAdapter, initializeModel, startLoop, stopLoop, onDataUpdate, onError, onStateChange, onInitProgress, stateRef]);
+  }, [
+    currentModel,
+    currentAdapter,
+    initializeModel,
+    startLoop,
+    stopLoop,
+    onDataUpdate,
+    onError,
+    onStateChange,
+    onInitProgress,
+    stateRef,
+  ]);
 
   const handlePause = useCallback(() => {
     if (stateRef.current) {
@@ -96,14 +123,14 @@ export const useSimulationController = ({
 
     stopLoop();
     cleanup();
-    onStateChange('stopped');
+    onStateChange("stopped");
   }, [stopLoop, cleanup, onStateChange, stateRef]);
 
   const handleResume = useCallback(() => {
     if (stateRef.current) {
       stateRef.current.shouldPause = false;
       stateRef.current.isPaused = false;
-      onStateChange('running');
+      onStateChange("running");
       startLoop(stateRef, onDataUpdate, onError, onStateChange);
     }
   }, [startLoop, onDataUpdate, onError, onStateChange, stateRef]);
@@ -123,4 +150,4 @@ export const useSimulationController = ({
     handleResume,
     stateRef,
   };
-}; 
+};
