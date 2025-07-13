@@ -1,14 +1,12 @@
 // components/LoadingComponents.tsx
 import React from "react";
 
-// Loading spinner component
 export const LoadingSpinner: React.FC = () => (
   <div className="flex items-center justify-center">
     <span className="inline-block h-5 w-5 border-2 border-t-transparent border-white rounded-full animate-spin"></span>
   </div>
 );
 
-// Chart loading placeholder
 export const ChartLoadingPlaceholder: React.FC = () => (
   <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
     <h3 className="text-lg font-semibold mb-4">Simulation Results</h3>
@@ -19,7 +17,6 @@ export const ChartLoadingPlaceholder: React.FC = () => (
   </div>
 );
 
-// Model initialization progress
 export const ModelInitializationProgress: React.FC<{
   stage: string;
   progress?: number;

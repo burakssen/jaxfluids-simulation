@@ -35,9 +35,7 @@ export const SimulationControls = React.memo<SimulationControlsProps>(
     initProgress,
   }) => (
     <div className="space-y-4">
-      {/* Control Buttons + Status */}
       <div className="flex items-center space-x-2">
-        {/* Buttons */}
         {executionState === "stopped" && (
           <button
             onClick={onRun}
@@ -97,7 +95,6 @@ export const SimulationControls = React.memo<SimulationControlsProps>(
           )}
         </div>
       </div>
-      {/* Time Step Control */}
       <div>
         <label className="block mb-2 text-sm">
           <strong>Time Step (dt):</strong> {timeStep.toFixed(6)}

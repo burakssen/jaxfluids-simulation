@@ -36,18 +36,15 @@ export const useSimulationController = ({
 
   const { startLoop, stopLoop } = useSimulationLoop(runSingleIteration);
 
-  // Update time step in the model when it changes
   useEffect(() => {
     if (
       previousTimeStepRef.current !== timeStep &&
       stateRef.current.isInitialized
     ) {
-      // If simulation is running, we need to restart with new time step
       if (
         stateRef.current.shouldStop === false &&
         stateRef.current.isPaused === false
       ) {
-        // Pause first, then resume with new time step
         stateRef.current.shouldPause = true;
       }
     }

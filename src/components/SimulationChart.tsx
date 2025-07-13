@@ -1,4 +1,3 @@
-// components/SimulationChart.tsx
 import React from "react";
 import {
   LineChart,
@@ -15,15 +14,6 @@ interface SimulationChartProps {
   chartData: Array<{ index: number; value: number }>;
   channelLabels?: string[];
 }
-
-const COLORS = [
-  "#82ca9d", // Green
-  "#8884d8", // Purple
-  "#ff7300", // Orange
-  "#ff4f81", // Pink
-  "#00c49f", // Teal
-  "#0088fe", // Blue
-];
 
 const SimulationChart = React.memo<SimulationChartProps>(
   ({ chartData, channelLabels }) => {
@@ -89,7 +79,7 @@ const SimulationChart = React.memo<SimulationChartProps>(
             <Line
               type="monotone"
               dataKey="value"
-              stroke={COLORS[0]}
+              stroke={"#82ca9d"}
               dot={false}
               strokeWidth={2}
               animationDuration={0}

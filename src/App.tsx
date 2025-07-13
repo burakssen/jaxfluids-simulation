@@ -9,10 +9,8 @@ import { SimulationControls } from "./components/SimulationControls";
 import { SimulationResults } from "./components/SimulationResults";
 import { MODEL_CONFIGS, DEFAULT_MODEL_ID } from "./config/models";
 
-// Initialize model registry once
 const modelRegistry = new ModelRegistry();
 
-// Register available models
 MODEL_CONFIGS.forEach((config) => {
   modelRegistry.registerModel(config, new FeedForwardAdapter());
 });
@@ -23,7 +21,6 @@ export default function App() {
   const previousModelId = useRef(state.selectedModelId);
   const isInitialRender = useRef(true);
 
-  // Set selectedDataPath to default model's first data file on initial mount if not set
   React.useEffect(() => {
     if (!state.selectedDataPath) {
       const defaultModel = modelRegistry.getModel(DEFAULT_MODEL_ID);
@@ -32,11 +29,8 @@ export default function App() {
         actions.setSelectedDataPath(firstData);
       }
     }
-    // Only run on mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Memoize current model and adapter
   const currentModel = useMemo(
     () => modelRegistry.getModel(state.selectedModelId),
     [state.selectedModelId]
@@ -46,7 +40,6 @@ export default function App() {
     [state.selectedModelId]
   );
 
-  // Initialize simulation controller
   const controller = useSimulationController({
     currentModel: currentModel!,
     dataPath: state.selectedDataPath,
@@ -58,13 +51,11 @@ export default function App() {
     onInitProgress: actions.setInitProgress,
   });
 
-  // Memoize chart data
   const chartData = useChartData(
     state.data.values,
     currentModel?.spatialRange || [0, 2]
   );
 
-  // Memoize channel labels
   const channelLabels = useMemo(() => {
     if (!currentModel) return [];
 
@@ -74,57 +65,46 @@ export default function App() {
     });
   }, [currentModel]);
 
-  // Handle model change - always reset time step when model changes
   useEffect(() => {
-    // Skip on initial render
     if (isInitialRender.current) {
       isInitialRender.current = false;
       previousModelId.current = state.selectedModelId;
       return;
     }
 
-    // Only proceed if model actually changed
     if (previousModelId.current !== state.selectedModelId) {
       console.log(
         `Model changed from ${previousModelId.current} to ${state.selectedModelId}`
       );
 
-      // Always reset time step to new model's default when model changes
       if (currentModel) {
         const newTimeStep = currentModel.defaultTimeStep;
         console.log(`Setting time step to model default: ${newTimeStep}`);
         actions.setTimeStep(newTimeStep);
       }
 
-      // Reset the user changed flag for new model
       userChangedTimeStep.current = false;
       previousModelId.current = state.selectedModelId;
     }
   }, [state.selectedModelId, currentModel, actions]);
 
-  // Handle model change
   const handleModelChange = useCallback(
     (modelId: string) => {
       console.log(`handleModelChange called with: ${modelId}`);
 
-      // Prevent unnecessary changes
       if (modelId === state.selectedModelId) {
         console.log(`Model ${modelId} already selected`);
         return;
       }
 
-      // Stop simulation if running
       if (state.executionState !== "stopped") {
         controller.handleStop();
       }
 
-      // Reset state for new model
       actions.resetData();
 
-      // Set new model - this will trigger the useEffect above
       actions.setSelectedModelId(modelId);
 
-      // Automatically select the first data file for the new model
       const newModel = modelRegistry.getModel(modelId);
       const firstData = newModel?.datas?.[0]?.path || "";
       actions.setSelectedDataPath(firstData);
@@ -135,20 +115,17 @@ export default function App() {
   const handleDataChange = useCallback(
     (dataPath: string) => {
       console.log(`handleDataChange called with: ${dataPath}`);
-      // Prevent unnecessary changes
+
       if (dataPath === state.selectedDataPath) {
         console.log(`Data ${dataPath} already selected`);
         return;
       }
 
-      // Stop simulation if running
       if (state.executionState !== "stopped") {
         controller.handleStop();
       }
 
-      // Reset state for new data
       actions.resetData();
-      // Set new data path
       actions.setSelectedDataPath(dataPath);
     },
     [state.selectedDataPath, state.executionState, controller, actions]
@@ -205,7 +182,6 @@ export default function App() {
             disabled={state.executionState === "running"}
           />
 
-          {/* Only show error above controls */}
           {state.error && (
             <div className="p-3 bg-red-900 border border-red-700 rounded text-red-200 mb-4">
               <strong>Error:</strong> {state.error}
