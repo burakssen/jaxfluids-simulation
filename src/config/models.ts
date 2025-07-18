@@ -5,10 +5,11 @@ export const MODEL_CONFIGS: ModelConfig[] = [
     id: "linear_advection_v1",
     name: "Liner Advection Model v1",
     description: "Basic model",
-    modelPath: "/models/linear_advection_v1/model_slim.onnx",
+    modelPath:
+      "/jaxfluids-feed-forward/models/linear_advection_v1/model_slim.onnx",
     datas: [
       {
-        path: "/models/linear_advection_v1/data.npy",
+        path: "/jaxfluids-feed-forward/models/linear_advection_v1/data.npy",
         name: "Linear Advection Data",
       },
     ],
@@ -24,10 +25,11 @@ export const MODEL_CONFIGS: ModelConfig[] = [
     id: "linear_advection_v2",
     name: "Liner Advection Model v2",
     description: "Basic Linear Advection Model",
-    modelPath: "/models/linear_advection_v2/model_slim.onnx",
+    modelPath:
+      "/jaxfluids-feed-forward/models/linear_advection_v2/model_slim.onnx",
     datas: [
       {
-        path: "/models/linear_advection_v2/data.npy",
+        path: "/jaxfluids-feed-forward/models/linear_advection_v2/data.npy",
         name: "Linear Advection Data",
       },
     ],
@@ -43,18 +45,19 @@ export const MODEL_CONFIGS: ModelConfig[] = [
     id: "sod_shock_tube",
     name: "Sod Shock Tube WENO5-Z",
     description: "Sod Shock Tube Model",
-    modelPath: "/models/sod_shock_tube/weno5-z/model_slim.onnx",
+    modelPath:
+      "/jaxfluids-feed-forward/models/sod_shock_tube/weno5-z/model_slim.onnx",
     datas: [
       {
-        path: "/models/sod_shock_tube/data/data_v1.npy",
+        path: "/jaxfluids-feed-forward/models/sod_shock_tube/data/data_v1.npy",
         name: "Sod Shock Tube Data v1",
       },
       {
-        path: "/models/sod_shock_tube/data/data_v2.npy",
+        path: "/jaxfluids-feed-forward/models/sod_shock_tube/data/data_v2.npy",
         name: "Sod Shock Tube Data v2",
       },
       {
-        path: "/models/sod_shock_tube/data/data_v3.npy",
+        path: "/jaxfluids-feed-forward/models/sod_shock_tube/data/data_v3.npy",
         name: "Sod Shock Tube Data v3",
       },
     ],
@@ -70,18 +73,19 @@ export const MODEL_CONFIGS: ModelConfig[] = [
     id: "sod_shock_tube_v2",
     name: "Sod Shock Tube WENO5-JS",
     description: "Sod Shock Tube Model",
-    modelPath: "/models/sod_shock_tube/weno5-js/model.onnx",
+    modelPath:
+      "/jaxfluids-feed-forward/models/sod_shock_tube/weno5-js/model.onnx",
     datas: [
       {
-        path: "/models/sod_shock_tube/data/data_v1.npy",
+        path: "/jaxfluids-feed-forward/models/sod_shock_tube/data/data_v1.npy",
         name: "Sod Shock Tube Data v1",
       },
       {
-        path: "/models/sod_shock_tube/data/data_v2.npy",
+        path: "/jaxfluids-feed-forward/models/sod_shock_tube/data/data_v2.npy",
         name: "Sod Shock Tube Data v2",
       },
       {
-        path: "/models/sod_shock_tube/data/data_v3.npy",
+        path: "/jaxfluids-feed-forward/models/sod_shock_tube/data/data_v3.npy",
         name: "Sod Shock Tube Data v3",
       },
     ],
@@ -97,30 +101,31 @@ export const MODEL_CONFIGS: ModelConfig[] = [
     id: "sod_shock_tube_v3",
     name: "Sod Shock Tube WENO3-JS",
     description: "Sod Shock Tube Model",
-    modelPath: "/models/sod_shock_tube/weno3-js/model.onnx",
+    modelPath:
+      "/jaxfluids-feed-forward/models/sod_shock_tube/weno3-js/model.onnx",
     datas: [
       {
-        path: "/models/sod_shock_tube/data/data_v1.npy",
+        path: "/jaxfluids-feed-forward/models/sod_shock_tube/data/data_v1.npy",
         name: "Sod Shock Tube Data v1",
         yAxisDomain: [-0.25, 1.25],
       },
       {
-        path: "/models/sod_shock_tube/data/data_v2.npy",
+        path: "/jaxfluids-feed-forward/models/sod_shock_tube/data/data_v2.npy",
         name: "Sod Shock Tube Data v2",
         yAxisDomain: [-0.5, 2.5],
       },
       {
-        path: "/models/sod_shock_tube/data/data_v3.npy",
+        path: "/jaxfluids-feed-forward/models/sod_shock_tube/data/data_v3.npy",
         name: "Sod Shock Tube Data v3",
         yAxisDomain: [-5.0, 105.0],
       },
       {
-        path: "/models/sod_shock_tube/data/data_v4.npy",
+        path: "/jaxfluids-feed-forward/models/sod_shock_tube/data/data_v4.npy",
         name: "Sod Shock Tube Data v4",
         yAxisDomain: [-0.25, 1.25],
       },
       {
-        path: "/models/sod_shock_tube/data/data_v5.npy",
+        path: "/jaxfluids-feed-forward/models/sod_shock_tube/data/data_v5.npy",
         name: "Sod Shock Tube Data v5",
         yAxisDomain: [-0.25, 1.25],
       },
