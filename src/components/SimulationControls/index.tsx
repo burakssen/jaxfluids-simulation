@@ -1,6 +1,6 @@
 import React from "react";
 import { type ExecutionState } from "../../types/SimulationTypes";
-import { LoadingSpinner } from "../Loading/LoadingSpinner";
+import { LoadingSpinner } from "../LoadingSpinner";
 
 // SimulationControlButtons component
 interface SimulationControlButtonsProps {
@@ -78,13 +78,17 @@ const SimulationStatus: React.FC<SimulationStatusProps> = ({
       <>
         <LoadingSpinner />
         <span className="ml-2 text-blue-200 text-sm">
-          <strong>Initializing:</strong> {initProgress.stage} ({initProgress.progress}%)
+          <strong>Initializing:</strong> {initProgress.stage} (
+          {initProgress.progress}%)
         </span>
       </>
     ) : (
       (executionState === "running" || executionState === "paused") && (
         <span className="ml-2 text-sm text-gray-200">
-          <strong>Status:</strong> {executionState} | <strong>Iteration:</strong> {currentIteration} | <strong>Data Points:</strong> {dataLength} | <strong>Time:</strong> {time.toFixed(6)}
+          <strong>Status:</strong> {executionState} |{" "}
+          <strong>Iteration:</strong> {currentIteration} |{" "}
+          <strong>Data Points:</strong> {dataLength} | <strong>Time:</strong>{" "}
+          {time.toFixed(6)}
         </span>
       )
     )}

@@ -192,9 +192,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-gray-900 text-white p-4 lg:p-8 font-sans">
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-2xl font-bold mb-6">
-          Modular Simulation Framework
-        </h2>
+        <h2 className="text-2xl font-bold mb-6">JaxFluids Simulation</h2>
 
         <div className="mb-6 p-4 bg-gray-800 rounded-lg border border-gray-700 space-y-4">
           <ModelSelector
