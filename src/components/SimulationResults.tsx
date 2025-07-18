@@ -11,10 +11,11 @@ interface SimulationResultsProps {
   chartData: Array<Array<{ index: number; value: number }>>;
   channelLabels: string[];
   hasData: boolean;
+  yAxisDomain?: [number, number];
 }
 
 export const SimulationResults = React.memo<SimulationResultsProps>(
-  ({ chartData, channelLabels, hasData }) => {
+  ({ chartData, channelLabels, hasData, yAxisDomain }) => {
     const getGridClasses = () => {
       const chartCount = chartData.length;
 
@@ -30,7 +31,7 @@ export const SimulationResults = React.memo<SimulationResultsProps>(
     return (
       <div className="space-y-6">
         <h3 className="text-xl font-semibold">Simulation Results</h3>
-
+        YAxis: {yAxisDomain}
         {hasData ? (
           <Suspense fallback={<ChartLoadingPlaceholder />}>
             <div className={getGridClasses()}>
@@ -39,6 +40,7 @@ export const SimulationResults = React.memo<SimulationResultsProps>(
                   <SimulationChart
                     chartData={channelData}
                     channelLabels={[channelLabels[idx] || `Channel ${idx}`]}
+                    yAxisDomain={yAxisDomain}
                   />
                 </div>
               ))}

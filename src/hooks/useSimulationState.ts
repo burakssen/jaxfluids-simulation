@@ -15,11 +15,13 @@ interface SimulationState {
   initProgress: InitializationProgress | null;
   pauseRequested: boolean;
   data: IterationData;
+  yAxisDomain: [number, number];
 }
 
 interface SimulationActions {
   setSelectedModelId: (id: string) => void;
   setSelectedDataPath: (path: string) => void;
+  setSelectedDataYAxisDomain: (yAxisDomain: [number, number]) => void;
   setTimeStep: (step: number) => void;
   setExecutionState: (state: ExecutionState) => void;
   setCurrentIteration: (iteration: number) => void;
@@ -49,6 +51,7 @@ export const useSimulationState = (
       values: [],
       time: 0,
     },
+    yAxisDomain: [-0.25, 1.25], // Default Y-axis range
   });
 
   const setSelectedModelId = useCallback((id: string) => {
@@ -68,6 +71,16 @@ export const useSimulationState = (
       pauseRequested: false,
     }));
   }, []);
+
+  const setSelectedDataYAxisDomain = useCallback(
+    (yAxisDomain: [number, number]) => {
+      setState((prev) => ({
+        ...prev,
+        yAxisDomain,
+      }));
+    },
+    []
+  );
 
   const setTimeStep = useCallback((step: number) => {
     setState((prev) => ({ ...prev, timeStep: step }));
@@ -159,6 +172,7 @@ export const useSimulationState = (
   const actions: SimulationActions = {
     setSelectedModelId,
     setSelectedDataPath,
+    setSelectedDataYAxisDomain,
     setTimeStep,
     setExecutionState,
     setCurrentIteration,

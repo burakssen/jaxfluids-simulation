@@ -13,10 +13,11 @@ import {
 interface SimulationChartProps {
   chartData: Array<{ index: number; value: number }>;
   channelLabels?: string[];
+  yAxisDomain?: [number, number]; // Optional prop to set Y-axis range
 }
 
 const SimulationChart = React.memo<SimulationChartProps>(
-  ({ chartData, channelLabels }) => {
+  ({ chartData, channelLabels, yAxisDomain }) => {
     if (!chartData || chartData.length === 0) {
       return (
         <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
@@ -57,6 +58,9 @@ const SimulationChart = React.memo<SimulationChartProps>(
             <YAxis
               stroke="#e0e0e0"
               tick={{ fill: "#e0e0e0" }}
+              domain={yAxisDomain || [-0.25, 1.25]}
+              type="number"
+              scale="linear"
               label={{
                 value: "Value",
                 angle: -90,

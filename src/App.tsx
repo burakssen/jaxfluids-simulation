@@ -131,6 +131,14 @@ export default function App() {
     [state.selectedDataPath, state.executionState, controller, actions]
   );
 
+  const handleSelectedDataYAxisDomain = useCallback(
+    (yAxisDomain: [number, number]) => {
+      console.log(`Setting Y-axis domain to: ${yAxisDomain}`);
+      actions.setSelectedDataYAxisDomain(yAxisDomain);
+    },
+    [actions]
+  );
+
   // Handle time step change
   const handleTimeStepChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -179,6 +187,7 @@ export default function App() {
             selectedData={state.selectedDataPath || ""}
             onModelChange={handleModelChange}
             onDataChange={handleDataChange}
+            onDataYAxisDomainChange={handleSelectedDataYAxisDomain}
             disabled={state.executionState === "running"}
           />
 
@@ -209,6 +218,7 @@ export default function App() {
           chartData={chartData}
           channelLabels={channelLabels}
           hasData={state.data.values.length > 0}
+          yAxisDomain={state.yAxisDomain}
         />
       </div>
     </div>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { type ModelConfig } from "../types/SimulationTypes";
 
 interface ModelSelectorProps {
@@ -7,6 +7,7 @@ interface ModelSelectorProps {
   selectedData: string;
   onModelChange: (modelId: string) => void;
   onDataChange: (dataPath: string) => void;
+  onDataYAxisDomainChange: (yAxisDomain: [number, number]) => void;
   disabled?: boolean;
 }
 
@@ -16,50 +17,97 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
   selectedData,
   onModelChange,
   onDataChange,
+  onDataYAxisDomainChange,
   disabled = false,
 }) => {
-  return (
-    <div className="flex flex-row mb-4">
-      <div className="flex-1 mr-4">
-        <label className="block mb-2 text-sm font-medium">
-          <strong>Select Model:</strong>
-        </label>
-        <select
-          value={selectedModel}
-          onChange={(e) => onModelChange(e.target.value)}
-          disabled={disabled}
-          className="w-full p-2 bg-gray-800 border border-gray-600 rounded text-white disabled:opacity-50"
-        >
-          {models.map((model) => (
-            <option key={model.id} value={model.id}>
-              {model.name} - {model.description}
-            </option>
-          ))}
-        </select>
-      </div>
+  // Memoize the selected model to avoid repeated finds
+  const currentModel = useMemo(
+    () => models.find((model) => model.id === selectedModel),
+    [models, selectedModel]
+  );
 
-      <div className="flex-1">
-        <label className="block mb-2 text-sm font-medium">
-          <strong>Select Data:</strong>
-        </label>
-        <select
-          value={selectedData}
-          onChange={(e) => onDataChange(e.target.value)}
-          disabled={disabled || !selectedModel}
-          className="w-full p-2 bg-gray-800 border border-gray-600 rounded text-white disabled:opacity-50"
-        >
-          {models
-            .find((model) => model.id === selectedModel)
-            ?.datas?.map((data) => (
-              <option key={data.path} value={data.path}>
-                {data.name}
-              </option>
-            )) || (
-            <option value="" disabled>
-              No data available
+  // Memoize available data options
+  const dataOptions = useMemo(() => {
+    return currentModel?.datas || [];
+  }, [currentModel]);
+
+  const handleDataChange = (dataPath: string) => {
+    onDataChange(dataPath);
+
+    // Find the selected data configuration and update Y-axis domain
+    const selectedDataConfig = dataOptions.find(
+      (data) => data.path === dataPath
+    );
+    if (selectedDataConfig) {
+      onDataYAxisDomainChange(selectedDataConfig.yAxisDomain || [-0.25, 1.25]);
+    }
+  };
+
+  const renderSelectField = (
+    label: string,
+    value: string,
+    onChange: (value: string) => void,
+    options: Array<{ value: string; label: string }>,
+    isDisabled: boolean,
+    placeholder?: string
+  ) => (
+    <div className="flex-1">
+      <label className="block mb-2 text-sm font-medium text-gray-200">
+        {label}
+      </label>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={isDisabled}
+        className="w-full p-2 bg-gray-800 border border-gray-600 rounded text-white 
+                   disabled:opacity-50 disabled:cursor-not-allowed
+                   focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500
+                   transition-colors duration-200"
+      >
+        {options.length > 0 ? (
+          options.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
             </option>
-          )}
-        </select>
+          ))
+        ) : (
+          <option value="" disabled>
+            {placeholder || "No options available"}
+          </option>
+        )}
+      </select>
+    </div>
+  );
+
+  const modelOptions = models.map((model) => ({
+    value: model.id,
+    label: `${model.name} - ${model.description}`,
+  }));
+
+  const dataSelectOptions = dataOptions.map((data) => ({
+    value: data.path,
+    label: data.name,
+  }));
+
+  return (
+    <div className="flex flex-col sm:flex-row gap-4 mb-4">
+      {renderSelectField(
+        "Select Model",
+        selectedModel,
+        onModelChange,
+        modelOptions,
+        disabled
+      )}
+
+      <div className="sm:ml-4">
+        {renderSelectField(
+          "Select Data",
+          selectedData,
+          handleDataChange,
+          dataSelectOptions,
+          disabled || !selectedModel,
+          "Select a model first"
+        )}
       </div>
     </div>
   );

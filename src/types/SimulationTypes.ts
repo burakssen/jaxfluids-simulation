@@ -27,6 +27,7 @@ export interface InitializationProgress {
 interface Data {
   path: string;
   name: string;
+  yAxisDomain?: [number, number];
 }
 
 export interface ModelConfig {
