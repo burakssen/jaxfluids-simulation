@@ -11,7 +11,7 @@ export const MODEL_CONFIGS: ModelConfig[] = [
       {
         path: "/jaxfluids-feed-forward/models/linear_advection_v1/data.npy",
         name: "Linear Advection Data",
-        yAxisDomain: [-0.25, 1.25],
+        yAxisDomain: [-0.25, 2.75],
       },
     ],
     inputShape: [5, 256, 1, 1],
@@ -33,7 +33,7 @@ export const MODEL_CONFIGS: ModelConfig[] = [
       {
         path: "/jaxfluids-feed-forward/models/linear_advection_v2/data.npy",
         name: "Linear Advection Data",
-        yAxisDomain: [-0.25, 1.25],
+        yAxisDomain: [-0.25, 2.75],
       },
     ],
     inputShape: [5, 256, 1, 1],
