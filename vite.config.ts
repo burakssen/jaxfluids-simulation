@@ -4,7 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import viteCompression from "vite-plugin-compression";
 
 export default defineConfig({
-  base: "/jaxfluids-feed-forward/",
+  base: "/jaxfluids-simulation/",
   plugins: [
     react(),
     viteCompression({
