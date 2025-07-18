@@ -32,9 +32,12 @@ export default function App() {
   React.useEffect(() => {
     if (!state.selectedDataPath) {
       const defaultModel = modelRegistry.getModel(DEFAULT_MODEL_ID);
-      const firstData = defaultModel?.datas?.[0]?.path;
-      if (firstData) {
-        actions.setSelectedDataPath(firstData);
+      const firstData = defaultModel?.datas?.[0];
+      if (firstData?.path) {
+        actions.setSelectedDataPath(firstData.path);
+        if (firstData.yAxisDomain) {
+          actions.setSelectedDataYAxisDomain(firstData.yAxisDomain);
+        }
       }
     }
   }, []);
@@ -114,8 +117,13 @@ export default function App() {
       actions.setSelectedModelId(modelId);
 
       const newModel = modelRegistry.getModel(modelId);
-      const firstData = newModel?.datas?.[0]?.path || "";
-      actions.setSelectedDataPath(firstData);
+      const firstData = newModel?.datas?.[0];
+      if (firstData?.path) {
+        actions.setSelectedDataPath(firstData.path);
+        if (firstData.yAxisDomain) {
+          actions.setSelectedDataYAxisDomain(firstData.yAxisDomain);
+        }
+      }
     },
     [state.selectedModelId, state.executionState, controller, actions]
   );

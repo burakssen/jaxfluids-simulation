@@ -43,7 +43,7 @@ export interface ModelConfig {
   spatialRange: [number, number];
   channels: number[];
   channelLabels?: string[];
-  adapterType?: string; // NEW: type of adapter to use for this model
+  adapterType?: string;
 }
 
 export interface ModelAdapter {

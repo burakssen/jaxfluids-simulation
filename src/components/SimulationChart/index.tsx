@@ -78,7 +78,7 @@ const SimulationChart = React.memo<SimulationChartProps>(
               }}
               formatter={(value: number) => value.toFixed(6)}
               labelFormatter={(label) => `Index: ${label}`}
-              animationDuration={300}
+              animationDuration={0}
             />
             <Line
               type="monotone"
@@ -86,8 +86,8 @@ const SimulationChart = React.memo<SimulationChartProps>(
               stroke={"#82ca9d"}
               dot={false}
               strokeWidth={2}
-              animationDuration={300}
-              isAnimationActive={true}
+              animationDuration={0}
+              isAnimationActive={false}
               name={channelLabels ? channelLabels[0] : `Channel`}
             />
             <Legend wrapperStyle={{ color: "#e0e0e0" }} />
