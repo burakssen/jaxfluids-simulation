@@ -3,7 +3,7 @@ import {
   type SimulationState,
   type IterationData,
   type ExecutionState,
-} from "../types/SimulationTypes";
+} from "../../types/SimulationTypes";
 
 export const useSimulationLoop = (runSingleIteration: () => Promise<any>) => {
   const animationFrameRef = useRef<number>(0);

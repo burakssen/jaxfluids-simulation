@@ -5,7 +5,7 @@ import {
   type ModelConfig,
   type ModelAdapter,
   type InitializationProgress,
-} from "../types/SimulationTypes";
+} from "../../types/SimulationTypes";
 
 export const useSimulationModel = (
   config: ModelConfig,

@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import SimulationChart from "./SimulationChart";
+import SimulationChart from "../SimulationChart";
 
 const ChartLoadingPlaceholder = React.memo(() => (
   <div className="w-full h-96 bg-gray-800 rounded-lg border border-gray-700 flex items-center justify-center">
@@ -31,7 +31,6 @@ export const SimulationResults = React.memo<SimulationResultsProps>(
     return (
       <div className="space-y-6">
         <h3 className="text-xl font-semibold">Simulation Results</h3>
-        YAxis: {yAxisDomain}
         {hasData ? (
           <Suspense fallback={<ChartLoadingPlaceholder />}>
             <div className={getGridClasses()}>

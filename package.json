@@ -20,7 +20,8 @@
     "rollup-plugin-visualizer": "^6.0.3",
     "tailwindcss": "^4.1.10",
     "terser": "^5.43.1",
-    "vite-plugin-compression": "^0.5.1"
+    "vite-plugin-compression": "^0.5.1",
+    "zustand": "^5.0.6"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",

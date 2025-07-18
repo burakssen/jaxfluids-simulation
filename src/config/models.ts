@@ -11,6 +11,7 @@ export const MODEL_CONFIGS: ModelConfig[] = [
       {
         path: "/jaxfluids-feed-forward/models/linear_advection_v1/data.npy",
         name: "Linear Advection Data",
+        yAxisDomain: [-0.25, 1.25],
       },
     ],
     inputShape: [5, 256, 1, 1],
@@ -20,6 +21,7 @@ export const MODEL_CONFIGS: ModelConfig[] = [
     spatialRange: [0, 2],
     channels: [0],
     channelLabels: ["Channel 0"],
+    adapterType: "feedforward",
   },
   {
     id: "linear_advection_v2",
@@ -31,6 +33,7 @@ export const MODEL_CONFIGS: ModelConfig[] = [
       {
         path: "/jaxfluids-feed-forward/models/linear_advection_v2/data.npy",
         name: "Linear Advection Data",
+        yAxisDomain: [-0.25, 1.25],
       },
     ],
     inputShape: [5, 256, 1, 1],
@@ -40,6 +43,7 @@ export const MODEL_CONFIGS: ModelConfig[] = [
     spatialRange: [0, 2],
     channels: [0],
     channelLabels: ["Channel 0"],
+    adapterType: "feedforward",
   },
   {
     id: "sod_shock_tube",
@@ -51,14 +55,27 @@ export const MODEL_CONFIGS: ModelConfig[] = [
       {
         path: "/jaxfluids-feed-forward/models/sod_shock_tube/data/data_v1.npy",
         name: "Sod Shock Tube Data v1",
+        yAxisDomain: [-0.25, 1.25],
       },
       {
         path: "/jaxfluids-feed-forward/models/sod_shock_tube/data/data_v2.npy",
         name: "Sod Shock Tube Data v2",
+        yAxisDomain: [-0.5, 2.5],
       },
       {
         path: "/jaxfluids-feed-forward/models/sod_shock_tube/data/data_v3.npy",
         name: "Sod Shock Tube Data v3",
+        yAxisDomain: [-5.0, 105.0],
+      },
+      {
+        path: "/jaxfluids-feed-forward/models/sod_shock_tube/data/data_v4.npy",
+        name: "Sod Shock Tube Data v4",
+        yAxisDomain: [-0.25, 1.25],
+      },
+      {
+        path: "/jaxfluids-feed-forward/models/sod_shock_tube/data/data_v5.npy",
+        name: "Sod Shock Tube Data v5",
+        yAxisDomain: [-0.25, 1.25],
       },
     ],
     inputShape: [5, 200, 1, 1],
@@ -68,6 +85,7 @@ export const MODEL_CONFIGS: ModelConfig[] = [
     spatialRange: [0, 1],
     channels: [0, 1, 4],
     channelLabels: ["Density", "Velocity", "", "", "Pressure"],
+    adapterType: "feedforward",
   },
   {
     id: "sod_shock_tube_v2",
@@ -79,14 +97,27 @@ export const MODEL_CONFIGS: ModelConfig[] = [
       {
         path: "/jaxfluids-feed-forward/models/sod_shock_tube/data/data_v1.npy",
         name: "Sod Shock Tube Data v1",
+        yAxisDomain: [-0.25, 1.25],
       },
       {
         path: "/jaxfluids-feed-forward/models/sod_shock_tube/data/data_v2.npy",
         name: "Sod Shock Tube Data v2",
+        yAxisDomain: [-0.5, 2.5],
       },
       {
         path: "/jaxfluids-feed-forward/models/sod_shock_tube/data/data_v3.npy",
         name: "Sod Shock Tube Data v3",
+        yAxisDomain: [-5.0, 105.0],
+      },
+      {
+        path: "/jaxfluids-feed-forward/models/sod_shock_tube/data/data_v4.npy",
+        name: "Sod Shock Tube Data v4",
+        yAxisDomain: [-0.25, 1.25],
+      },
+      {
+        path: "/jaxfluids-feed-forward/models/sod_shock_tube/data/data_v5.npy",
+        name: "Sod Shock Tube Data v5",
+        yAxisDomain: [-0.25, 1.25],
       },
     ],
     inputShape: [5, 200, 1, 1],
@@ -96,6 +127,7 @@ export const MODEL_CONFIGS: ModelConfig[] = [
     spatialRange: [0, 1],
     channels: [0, 1, 4],
     channelLabels: ["Density", "Velocity", "", "", "Pressure"],
+    adapterType: "feedforward",
   },
   {
     id: "sod_shock_tube_v3",
@@ -137,6 +169,7 @@ export const MODEL_CONFIGS: ModelConfig[] = [
     spatialRange: [0, 1],
     channels: [0, 1, 4],
     channelLabels: ["Density", "Velocity", "", "", "Pressure"],
+    adapterType: "feedforward",
   },
 ];
 

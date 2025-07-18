@@ -3,7 +3,7 @@ import {
   type ModelConfig,
   type ModelAdapter,
   type ExecutionState,
-} from "../types/SimulationTypes";
+} from "../../types/SimulationTypes";
 import { useSimulationModel } from "./useSimulationModel";
 import { useSimulationLoop } from "./useSimulationLoops";
 

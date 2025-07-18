@@ -1,9 +1,9 @@
 import React, { useMemo, useCallback, useEffect, useRef } from "react";
 import { ModelRegistry } from "./models/ModelRegistry";
-import { FeedForwardAdapter } from "./models/adapters/FeedForwardAdapter";
-import { useSimulationState } from "./hooks/useSimulationState";
-import { useSimulationController } from "./hooks/useSimulationController";
-import { useChartData } from "./hooks/useChartData";
+import { FeedForwardAdapter } from "./models/adapterTypes/FeedForwardAdapter";
+import { createSimulationStore } from "./hooks/simulation/useSimulationState";
+import { useSimulationController } from "./hooks/simulation/useSimulationController";
+import { useChartData } from "./hooks/chart/useChartData";
 import { ModelSelector } from "./components/ModelSelector";
 import { SimulationControls } from "./components/SimulationControls";
 import { SimulationResults } from "./components/SimulationResults";
@@ -11,12 +11,20 @@ import { MODEL_CONFIGS, DEFAULT_MODEL_ID } from "./config/models";
 
 const modelRegistry = new ModelRegistry();
 
+// Create the Zustand simulation store ONCE at module level
+const useSimulationStore = createSimulationStore(DEFAULT_MODEL_ID, 0.001);
+
+// Register adapter types
+modelRegistry.registerAdapterType("feedforward", FeedForwardAdapter);
+
+// Register models (dynamic adapter selection)
 MODEL_CONFIGS.forEach((config) => {
-  modelRegistry.registerModel(config, new FeedForwardAdapter());
+  modelRegistry.registerModel(config);
 });
 
 export default function App() {
-  const [state, actions] = useSimulationState(DEFAULT_MODEL_ID, 0.001);
+  const state = useSimulationStore();
+  const actions = useSimulationStore();
   const userChangedTimeStep = useRef(false);
   const previousModelId = useRef(state.selectedModelId);
   const isInitialRender = useRef(true);
