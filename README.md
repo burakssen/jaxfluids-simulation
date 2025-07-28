@@ -97,3 +97,7 @@ bun run build
 - Charting is handled by Recharts in `SimulationChart`.
 - Styling is via Tailwind CSS (see `src/index.css`).
 - Vite is used for fast builds and HMR.
+
+# TODO
+
+- Resolution buttons 4 button for each maybe (It should restart it with the new resolution)

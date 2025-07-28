@@ -190,13 +190,13 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-4 lg:p-8 font-sans">
-      <div className="max-w-7xl mx-auto">
-        <h2 className="text-2xl font-bold mb-6">JaxFluids Simulation</h2>
-
-        <div className="mb-6 p-4 bg-gray-800 rounded-lg border border-gray-700 space-y-4">
+    <div className="min-h-screen flex flex-col bg-gray-950 text-white p-2 lg:p-4 font-inter font-sans">
+      <div className="flex flex-col flex-1 min-h-0">
+        <h2 className="text-lg font-bold mb-3 tracking-tight">
+          JaxFluids Simulation
+        </h2>
+        <div className="mb-3 p-2 bg-gray-900 rounded-md shadow-sm border border-gray-800 space-y-2">
           <ModelSelector
-            models={modelRegistry.getAllModels()}
             selectedModel={state.selectedModelId}
             selectedData={state.selectedDataPath || ""}
             onModelChange={handleModelChange}
@@ -204,13 +204,11 @@ export default function App() {
             onDataYAxisDomainChange={handleSelectedDataYAxisDomain}
             disabled={state.executionState === "running"}
           />
-
           {state.error && (
             <div className="p-3 bg-red-900 border border-red-700 rounded text-red-200 mb-4">
               <strong>Error:</strong> {state.error}
             </div>
           )}
-
           <SimulationControls
             executionState={state.executionState}
             pauseRequested={state.pauseRequested}
@@ -227,13 +225,14 @@ export default function App() {
             initProgress={state.initProgress}
           />
         </div>
-
-        <SimulationResults
-          chartData={chartData}
-          channelLabels={channelLabels}
-          hasData={state.data.values.length > 0}
-          yAxisDomain={state.yAxisDomain}
-        />
+        <div className="flex-1 min-h-0 flex flex-col">
+          <SimulationResults
+            chartData={chartData}
+            channelLabels={channelLabels}
+            hasData={state.data.values.length > 0}
+            yAxisDomain={state.yAxisDomain}
+          />
+        </div>
       </div>
     </div>
   );

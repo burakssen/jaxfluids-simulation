@@ -29,25 +29,26 @@ export const SimulationResults = React.memo<SimulationResultsProps>(
     };
 
     return (
-      <div className="space-y-6">
-        <h3 className="text-xl font-semibold">Simulation Results</h3>
+      <div className="flex flex-col flex-1 min-h-0 space-y-2">
+        <h3 className="text-base font-semibold tracking-tight text-gray-100">Simulation Results</h3>
         {hasData ? (
           <Suspense fallback={<ChartLoadingPlaceholder />}>
-            <div className={getGridClasses()}>
+            <div className={getGridClasses().replace(/gap-6/g, 'gap-2') + ' flex-1 min-h-0'}>
               {chartData.map((channelData, idx) => (
-                <div key={idx} className="w-full">
+                <div key={idx} className="w-full h-full flex-1 min-h-0">
                   <SimulationChart
                     chartData={channelData}
                     channelLabels={[channelLabels[idx] || `Channel ${idx}`]}
                     yAxisDomain={yAxisDomain}
+                    fillHeight
                   />
                 </div>
               ))}
             </div>
           </Suspense>
         ) : (
-          <div className="w-full p-8 bg-gray-800 rounded-lg border border-gray-700 text-center">
-            <div className="text-gray-400 text-lg">
+          <div className="w-full p-3 bg-gray-900 rounded-md shadow-sm border border-gray-800 text-center">
+            <div className="text-gray-400 text-base">
               No simulation data available. Click "Run" to start the simulation.
             </div>
           </div>

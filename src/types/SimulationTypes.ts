@@ -30,6 +30,39 @@ interface Data {
   yAxisDomain?: [number, number];
 }
 
+interface ModelFamilyConfig {
+  id: string;
+  name: string;
+  description: string;
+  spatialRange: [number, number];
+  channels: number[];
+  channelLabels: string[];
+  adapterType: string;
+}
+
+export interface ModelVariant {
+  id: string;
+  name: string;
+  description: string;
+  modelPath: string;
+  inputShape: [number, number, number, number];
+  outputShape: [number, number, number, number];
+  timeStepRange: [number, number];
+  defaultTimeStep: number;
+}
+
+export interface ModelData {
+  path: string;
+  name: string;
+  yAxisDomain: [number, number];
+}
+
+export interface ModelFamily {
+  config: ModelFamilyConfig;
+  variants: ModelVariant[];
+  data: ModelData[];
+}
+
 export interface ModelConfig {
   id: string;
   name: string;
